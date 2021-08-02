@@ -1,0 +1,3 @@
+# Files in LSST proj folder to ignore
+
+.ipynb_checkpoints/Format_LSST_LC-checkpoint.ipynb
