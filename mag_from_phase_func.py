@@ -4,7 +4,7 @@ import os
 home_path = os.path.expanduser('~/')
 path_67p = home_path+'Documents/year1/shape_modelling/67p/'
 
-input_file = path_67p+'67P_hrz_PHASE_3au.txt' # List of phase angles
+input_file = path_67p+'67P_PHASE_ALL_lsst.txt' # List of phase angles
 
 phase_angles = []
 f = open(input_file, 'r')
@@ -37,19 +37,27 @@ for line in lines:
     data=line.split()
     shift_list.append(float(data[0]))
 
+# Calcu mags and save them to list
+fout=open(path_67p+'67P_mag_list_ALL.txt', 'w+')
 mags_shifted = []
+
 for i,val in enumerate(shift_list):
     shifted_mag = val+mags_zero[i]
     print('%.6f %.6f %.6f'%(mags_zero[i], val, shifted_mag))
+    fout.write('%.6f\n'%shifted_mag)
     mags_shifted.append(shifted_mag)
+fout.close()
 
 
 # Convert these magnitudes to intensities for Mikko lc
 # Normalise: subtract from each value integer mean magzero
 corr_fac = round(np.mean(mags_shifted),0)
-print(corr_fac)
-
+#print(corr_fac)
+# Make another file containing these intensities
+fout = open(path_67p+'67P_int_list_ALL.txt', 'w+')
 for mag in mags_shifted:
     intens = 10**((mag-corr_fac)/(-2.5))
-    print(intens) #should be somewhere around 1
+    fout.write('%.6f\n'%intens) #should be somewhere around 1
+
+fout.close()
 print(corr_fac)
