@@ -18,5 +18,5 @@ ii) mag_from_phase_func.py
 iii) LSST_LC_procedures.ipynb:
 - Reads in magnitudes for use (these need to be created in first place) from 67p_20230109_I11_R.dat (MJD, absMag, SunXyz, r_h, EarthXyz, Delta)
 - Calculates an apparent magnitude m: H = m - 5log(delta*rh)
-- **Uncertainties prepared here** function created from manual FORS2 SNR inputs
+- **Uncertainties prepared here** function created from manual FORS2 SNR inputs found in FORS2_snr_vals.dat
 - Writes columns mjd, mag, m_app, rh, delta, alpha, snr, unc to 67P_LCs_ALL_R.dat
