@@ -18,5 +18,11 @@ ii) mag_from_phase_func.py
 iii) LSST_LC_procedures.ipynb:
 - Reads in magnitudes for use (these need to be created in first place) from 67p_20230109_I11_R.dat (MJD, absMag, SunXyz, r_h, EarthXyz, Delta)
 - Calculates an apparent magnitude m: H = m - 5log(delta*rh)
-- **Uncertainties prepared here** function created from manual FORS2 SNR inputs
-- Writes columns mjd, mag, m_app, rh, delta, alpha, snr, unc to 67P_LCs_ALL_R.dat
+- **Uncertainties prepared here** function created from manual FORS2 SNR inputs (saved in file FORS2_snr_vals.dat)
+- Writes columns mjd, mag, m_app, rh, delta, alpha, snr, unc to 67P_LCs_R.dat
+
+iv) periodogram.ipynb
+- Reads in data contained in table 67P_LCs_R.dat
+- Treating the apparent magnitudes here as though they are real, calibrated data points, convert them to H(1,1,alpha) using an 'average' phase function.
+- Parses Horizons to find next perihelion MJDs for 67P
+- Performs periodogram analysis on data points (option to limit by heliocentric distance), searching rotation periods between 0.1 and 2. days. 
