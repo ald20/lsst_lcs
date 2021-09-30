@@ -3,7 +3,7 @@
 Scripts used for analysis in LSST comet lightcurves project. Brief summary of each script:
 
 i) Format_LSST_LCC.ipynb:
-- reads columns from simulator output, parses Horizons for Earth x,y,z vectors (only sun provided by LSST). 
+- reads columns from simulator output, parses Horizons for Earth x,y,z vectors (only sun provided by LSST).
 - Performs light time correction using Earth distance from LSST simulator output.
 - Also contains MikkoWrite function, writing JDs, intensities (dummy) and vectors to Mikko file format.
 
@@ -25,4 +25,4 @@ iv) periodogram.ipynb
 - Reads in data contained in table 67P_LCs_R.dat
 - Treating the apparent magnitudes here as though they are real, calibrated data points, convert them to H(1,1,alpha) using an 'average' phase function.
 - Parses Horizons to find next perihelion MJDs for 67P
-- Performs periodogram analysis on data points (option to limit by heliocentric distance), searching rotation periods between 0.1 and 2. days. 
+- Performs periodogram analysis on data points (option to limit by heliocentric distance), searching rotation periods between 0.1 and 2. days.
