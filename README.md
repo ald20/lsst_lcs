@@ -26,3 +26,6 @@ iv) periodogram.ipynb
 - Treating the apparent magnitudes here as though they are real, calibrated data points, convert them to H(1,1,alpha) using an 'average' phase function.
 - Parses Horizons to find next perihelion MJDs for 67P
 - Performs periodogram analysis on data points (option to limit by heliocentric distance), searching rotation periods between 0.1 and 2. days.
+
+v) LSST_baselinev13_query.py
+- Script to search baseline_v1.3_10years.db using SQLITE to return 5 sigma depths and observationID
