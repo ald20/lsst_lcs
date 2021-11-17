@@ -34,7 +34,7 @@ def correctForPhase(H_11a, b, a):
 # Create datatable to store randomised magnitudes in columns
 # Every column is an instance of the complete randomised lightcurve
 # n columns
-n = 500
+n = 50
 container = np.empty([len(mag0), n])
 
 for i in range(len(container[1])):
@@ -106,6 +106,12 @@ print(period_array)
 plt.hist(period_array, bins='fd', range=(min(period_array), max(period_array)))
 #plt.tick_params(axis='x', )
 plt.gca().xaxis.set_major_formatter(StrMethodFormatter('{x:,.5f}'))
+plt.show()
+
+
+plt.hist(beta_array[:,0], bins='fd', range=(min(beta_array[:,0]), max(beta_array[:,0])))
+#plt.tick_params(axis='x', )
+#plt.gca().xaxis.set_major_formatter(StrMethodFormatter('{x:,.5f}'))
 plt.show()
 
 
