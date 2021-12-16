@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy import stats
 from astropy.timeseries import LombScargle
 from gatspy.periodic import LombScargleFast
@@ -7,10 +8,14 @@ from matplotlib.ticker import StrMethodFormatter
 import os
 
 path_67p=os.path.expanduser('~/')+'Documents/year1/shape_modelling/67p/'
+writeLCsToFile=False
+limiting_rh = 3.5 # AU, pre-defined in filename, not here.
 
 # Read in unshuffled lightcurve data
+# Check which LC data you are reading in!
 mjd = []; mag0 = []; unc = []; rh = []; delta = []; alpha = []
-lightcurveRaw = open(path_67p+'67P_DATA_5SIG_3AU_FINAL.txt')
+lightcurveRaw = open(f'{path_67p}67P_DATA_5SIG_{limiting_rh}AU_FINAL.txt')
+
 lines = lightcurveRaw.readlines()
 for line in lines[1:]:
     data = line.split()
@@ -34,7 +39,7 @@ def correctForPhase(H_11a, b, a):
 # Create datatable to store randomised magnitudes in columns
 # Every column is an instance of the complete randomised lightcurve
 # n columns
-n = 50
+n = 500
 container = np.empty([len(mag0), n])
 
 for i in range(len(container[1])):
@@ -62,6 +67,24 @@ for k in range(len(abs_mags[0])):
     beta_array[k]=[beta,se]
     # Use beta value to correct for phase function
     abs_mags[:,k] = correctForPhase(abs_mags[:,k], beta_array[k,0], alpha)
+
+float_formatter = "{:.6f}".format
+np.set_printoptions(formatter={'float_kind':float_formatter})
+
+
+if writeLCsToFile==True:
+    # Store as a pandas dataframe for ease of printing:
+    absMagsDf = pd.DataFrame(data=abs_mags, index=None, columns=None)
+
+    lcFileName = path_67p+'67p_lcs_'+str(n)+'_h0.txt'
+    #fout = open(lcFileName, 'w+')
+    pd.set_option("display.max_rows", len(abs_mags), "display.max_columns", n)
+    #print(absMagsDf)
+    absMagsDf.to_csv(lcFileName, header=None, index=None, sep=' ', mode='w+', float_format='%.6f')
+    #fout.close()
+else:
+    print('Not saving anything to file today :) ')
+
 
 # So now we have a table of absolutely-corrected magnitudes, one lihgtcurves per column.
 # Want to do a Lomb-Scargle periodogram search on each column
@@ -103,15 +126,17 @@ for i in range(len(abs_mags[0])):
     period_array[i] = P*24.*2.
 print(period_array)
 
-plt.hist(period_array, bins='fd', range=(min(period_array), max(period_array)))
-#plt.tick_params(axis='x', )
+plt.clf()
+plt.hist(period_array,bins=10, range=(min(period_array), max(period_array)))
+
+#plt.tick_params(axis='x')
 plt.gca().xaxis.set_major_formatter(StrMethodFormatter('{x:,.5f}'))
 plt.show()
 
 
-plt.hist(beta_array[:,0], bins='fd', range=(min(beta_array[:,0]), max(beta_array[:,0])))
-#plt.tick_params(axis='x', )
-#plt.gca().xaxis.set_major_formatter(StrMethodFormatter('{x:,.5f}'))
+plt.hist(beta_array[:,0], bins=10, range=(min(beta_array[:,0]), max(beta_array[:,0])))
+#plt.tick_params(axis='x')
+plt.gca().xaxis.set_major_formatter(StrMethodFormatter('{x:,.5f}'))
 plt.show()
 
 
