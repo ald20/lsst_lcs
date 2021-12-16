@@ -3,7 +3,7 @@
 Scripts used for analysis in LSST comet lightcurves project. Brief summary of each script:
 
 i) Format_LSST_LCC.ipynb:
-- reads columns from simulator output (LSST_out_LC_67P.txt), parses Horizons for Earth x,y,z vectors (only sun provided by LSST). 
+- reads columns from simulator output (LSST_out_LC_67P.txt), parses Horizons for Earth x,y,z vectors (only sun provided by LSST).
 - Performs light time correction using Earth distance from LSST simulator output.
 - Also contains MikkoWrite function, writing JDs, intensities (dummy) and vectors to Mikko file format.
 - Gets solar phase angles and ecliptic longitudes, latitudes from Horizons ephemerides.
@@ -21,14 +21,23 @@ ii) mag_from_phase_func.py
 iii) LSST_LC_procedures.ipynb:
 - Reads in magnitudes for use (these need to be created in first place) from 67p_20230109_I11_R.dat (MJD, absMag, SunXyz, r_h, EarthXyz, Delta, EclLon, EclLat)
 - Calculates an apparent magnitude m: H = m - 5log(delta*rh)
-- **Uncertainties prepared here** function created from manual FORS2 SNR inputs (saved in file FORS2_snr_vals.dat)
+- Uncertainties:
+  - option to use function created from manual FORS2 SNR inputs (saved in file FORS2_snr_vals.dat)
 - Writes columns mjd, mag, m_app, rh, delta, alpha, snr, unc to 67P_LCs_R.dat
 
-iv) periodogram.ipynb
+iv) LSST_baselinev13_query.py
+- Script to search baseline_v1.3_10years.db using SQLITE to return 5 sigma depths and observationID
+
+v) snr_filters_lsst.ipynb
+- Creates uncertainties based on 5-sigma depths found in previous script
+
+vi) periodogram.ipynb
 - Reads in data contained in table 67P_LCs_R.dat
 - Treating the apparent magnitudes here as though they are real, calibrated data points, convert them to H(1,1,alpha) using an 'average' phase function.
 - Parses Horizons to find next perihelion MJDs for 67P
 - Performs periodogram analysis on data points (option to limit by heliocentric distance), searching rotation periods between 0.1 and 2. days.
 
-v) LSST_baselinev13_query.py
-- Script to search baseline_v1.3_10years.db using SQLITE to return 5 sigma depths and observationID
+vii) generate_mc_lightcurves.py
+- Reads in apparent magnitude lightcurve data from text file (fully formatted)
+- Generates n randomised lightcurves (fitting P and beta by RK1 method)
+- Outputs periodogram for P and beta
