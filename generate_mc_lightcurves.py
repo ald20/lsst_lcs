@@ -5,28 +5,29 @@ from astropy.timeseries import LombScargle
 from gatspy.periodic import LombScargleFast
 import matplotlib.pyplot as plt
 from matplotlib.ticker import StrMethodFormatter
+import alive_progress
 import os
 
 path_67p=os.path.expanduser('~/')+'Documents/year1/shape_modelling/67p/'
 writeLCsToFile=False
-limiting_rh = 3.5 # AU, pre-defined in filename, not here.
-
+limiting_rh = 0 # AU, pre-defined in filename, not here.
+"""
 # Read in unshuffled lightcurve data
 # Check which LC data you are reading in!
-mjd = []; mag0 = []; unc = []; rh = []; delta = []; alpha = []
-lightcurveRaw = open(f'{path_67p}67P_DATA_5SIG_{limiting_rh}AU_FINAL.txt')
+#lightcurveRaw = open(f'{path_67p}67P_DATA_5SIG_{limiting_rh}AU_FINAL.txt')
+lightcurveRaw = open(f'{path_67p}67P_LCs_ALL_R.dat')
 
-lines = lightcurveRaw.readlines()
-for line in lines[1:]:
-    data = line.split()
-    mjd.append(float(data[0]))
-    mag0.append(float(data[1]))
-    unc.append(float(data[2]))
-    rh.append(float(data[3]))
-    delta.append(float(data[4]))
-    alpha.append(float(data[5]))
+data = pd.read_csv(lightcurveRaw, sep=' ', header=0)
+print(data.columns)
+#print(data['appMag'])
+mjd = data['mjd']; mag0=data['appMag']
+unc=data['unc']; rh=data['rh']
+delta=data['delta']; alpha=data['alpha']
 
-mag0 = np.array(mag0); unc=np.array(unc); alpha=np.array(alpha); delta=np.array(delta); rh=np.array(rh)
+print(f'Number of points in this lightcurve (>{limiting_rh} au) = {len(mag0)}')
+#mag0 = np.array(mag0); unc=np.array(unc);
+#alpha=np.array(alpha); delta=np.array(delta);
+#rh=np.array(rh)
 
 def correctForDistance(m, d, r):
     H_11a = m-(5.*np.log10(d*r))
@@ -46,9 +47,9 @@ for i in range(len(container[1])):
     for j in range(len(mag0)):
         random_mag = np.random.normal(loc=mag0[j], scale=unc[j], size=None)
         container[j,i]=random_mag
-#print(container[0])
 
-# Now, need to perform linear regression on each column
+
+# Now, need to perform linear regression on each column of container
 # With phase angles, to guess best fitting slope (beta)
 # First, need to distance correct magnitudes
 
@@ -67,6 +68,7 @@ for k in range(len(abs_mags[0])):
     beta_array[k]=[beta,se]
     # Use beta value to correct for phase function
     abs_mags[:,k] = correctForPhase(abs_mags[:,k], beta_array[k,0], alpha)
+#print(beta_array)
 
 float_formatter = "{:.6f}".format
 np.set_printoptions(formatter={'float_kind':float_formatter})
@@ -76,7 +78,7 @@ if writeLCsToFile==True:
     # Store as a pandas dataframe for ease of printing:
     absMagsDf = pd.DataFrame(data=abs_mags, index=None, columns=None)
 
-    lcFileName = path_67p+'67p_lcs_'+str(n)+'_h0.txt'
+    lcFileName = f'{path_67p}67p_lcs_{str(n)}_{limiting_rh}au_h0.txt'
     #fout = open(lcFileName, 'w+')
     pd.set_option("display.max_rows", len(abs_mags), "display.max_columns", n)
     #print(absMagsDf)
@@ -84,13 +86,21 @@ if writeLCsToFile==True:
     #fout.close()
 else:
     print('Not saving anything to file today :) ')
+"""
+# Plot random data phased to actual period to see if it's hot garbage or not
+#p_real = 12.4041
 
+#phased_times = (mjd-mjd[0])*24./p_real % 1
 
+#plt.scatter(phased_times,abs_mags[:,0],c=mjd, cmap='viridis_r')
+#plt.colorbar()
+#plt.show()
+"""
 # So now we have a table of absolutely-corrected magnitudes, one lihgtcurves per column.
 # Want to do a Lomb-Scargle periodogram search on each column
 
 # period range to sample:
-min_prot=0.2#*u.day # days
+min_prot=0.1#*u.day # days
 max_prot=2.#*u.day # days
 Nsample = 1000000
 
@@ -98,8 +108,9 @@ period_array = np.empty([len(abs_mags[0])])
 # Define frequency range:
 freq = np.linspace(1./max_prot, 1./min_prot, Nsample)
 periods_for_plotting = np.arange(min_prot, max_prot, 1./Nsample)
+print(f'Performing LS period search on {n} randomised lightcurves:')
 for i in range(len(abs_mags[0])):
-    print(round((float(i)/n)*100.,1),"%")
+    print(f'Completed {round((float(i)/n)*100.,2)}%')
     ##  Astropy periodogram implementation:
     #LSpower = LombScargle(mjd, abs_mags[:,i], unc).power(freq, method='fast')
     #best_freq = freq[np.argmax(LSpower)]
@@ -124,20 +135,21 @@ for i in range(len(abs_mags[0])):
     #print(best_period)
     #print("Best period = {0:.4f}h".format(best_period*24.*2.))
     period_array[i] = P*24.*2.
-print(period_array)
+"""
+"""print(period_array)
 
 plt.clf()
 plt.hist(period_array,bins=10, range=(min(period_array), max(period_array)))
 
 #plt.tick_params(axis='x')
-plt.gca().xaxis.set_major_formatter(StrMethodFormatter('{x:,.5f}'))
+plt.gca().xaxis.set_major_formatter(StrMethodFormatter('{x:,.4f}'))
 plt.show()
 
 
 plt.hist(beta_array[:,0], bins=10, range=(min(beta_array[:,0]), max(beta_array[:,0])))
 #plt.tick_params(axis='x')
-plt.gca().xaxis.set_major_formatter(StrMethodFormatter('{x:,.5f}'))
-plt.show()
+plt.gca().xaxis.set_major_formatter(StrMethodFormatter('{x:,.4f}'))
+plt.show()"""
 
 
 
